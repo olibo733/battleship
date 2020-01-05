@@ -1,11 +1,18 @@
 package battleships;
 
+import java.io.*;
 import java.util.*;
 
 public class Menu implements MenuItem {
-	
 	protected String title;
-	List<MenuItem> items;
+	private Scanner scan = new Scanner(System.in);
+	private LinkedList<String> highscoreList = new LinkedList<String>();
+	private List<MenuItem> items;
+	
+	public Menu() {
+		
+	}
+	
 	public Menu(String title) {
 		items = new ArrayList<>();
 		this.title = title;
@@ -20,17 +27,15 @@ public class Menu implements MenuItem {
     }
     
     public void execute() {
+		boolean inputCorrect = true;
     	int counter = -1;
-    	//counter++;
         MenuItem toExecute = null;
         System.out.println(getTitle());
-        
         for (int i = 0; i < getTitle().length(); i++) {
         	String n = ("=");
         	System.out.print(n);
         }
-        System.out.println("");
-        
+        System.out.println();
         for(MenuItem item : items) {
         	counter++;
             if(item.getTitle().equals(this.getTitle())) {
@@ -38,47 +43,86 @@ public class Menu implements MenuItem {
             }
             System.out.println(counter + ": " + item.getTitle());
         }
-        Scanner scan = new Scanner(System.in);
-        int a = scan.nextInt();
-        toExecute = items.get(a);
-        toExecute.execute();
+    	while (inputCorrect) {
+			try {
+	           int a = scan.nextInt();
+	           toExecute = items.get(a);
+	           toExecute.execute();
+	           inputCorrect = false;
+			}
+	        catch (InputMismatchException e) {
+	        	System.out.println("Incorrect input. Only use numbers. Try again.");
+	        	scan.nextLine();
+	        }
+    	}
     }
     
-    public static void main(String[] args) {
+    public void launchMenu() {
     	Menu mainMenu = new Menu("Main Menu");
     	Menu playGame = new Menu("Play");
     	Menu scoreBoard = new Menu("Scoreboard");
-    	
+    	Game game = new Game();
+    	System.out.println("Welcome to Battleships!");
+    	System.out.println();
         mainMenu.add(new AbstractMenuItem("Exit game") {
 	        public void execute() {
 	        	System.exit(1);
 	        }
         });
-    	
         mainMenu.add(new AbstractMenuItem("Play") {
 	        public void execute() {
+				Constants.printEmpty();
 	        	playGame.execute();
 	        }
-        });
-        
+        }); 
         mainMenu.add(new AbstractMenuItem("Scoreboard") {
 	        public void execute() {
+				Constants.printEmpty();
 	        	scoreBoard.execute();
 	        }
         });
-        
         playGame.add(new AbstractMenuItem("Main menu") {
 	        public void execute() {
 	        	mainMenu.execute();
 	        }
         });
-        
-        
-        playGame.add(new AbstractMenuItem("Play game!") {
+        playGame.add(new AbstractMenuItem("Player vs computer") {
 	        public void execute() {
-	        	Game.runGame();
+	        	game.runGame();
+	        	mainMenu.execute();
+	        }
+        });
+        playGame.add(new AbstractMenuItem("Player vs player") {
+	        public void execute() {
+	        	game.runGame();
+	        	mainMenu.execute();
 	        }
         });
         mainMenu.execute();
     }
+    
+    public void highScoreList() throws FileNotFoundException, IOException {
+		InputStream highscore = new FileInputStream ("/eclipse-workspace/Sänksakepp/src/battleships/highscore.txt");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(highscore));
+	    while (reader.ready()) {
+	    	String line = reader.readLine();
+	    	if(!line.equals("")) {
+	    		highscoreList.add(line);
+	    	}
+	    }
+	    reader.close();
+    }
+    
+	public int checkHighscoreList(int shots) {
+		int scorePlace = 1;
+		for(String s : highscoreList) {
+	        String[] splitLine = s.split(":");
+	        int recordShots = Integer.parseInt(splitLine[2].trim());
+	        if(shots <= recordShots) {
+	        	return scorePlace;
+	        }
+	        scorePlace++;
+		}
+		return 0;
+	}
 }
