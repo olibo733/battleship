@@ -67,13 +67,12 @@ public class Player {
 	public void makeGrid() {
 		System.out.println("The seas are currently empty, get ready to place your ships.");
 		for (int i = 0; i < Constants.pshipAmount; i++) {
-//			grid.placeShips(i);
+			grid.placeShips(i);
 		}
 		setHealth(grid.countX());
 	}
 	
 	public void makeComputerGrid() {
-		System.out.println("The seas are currently empty, get ready to place your ships, player " + getName());
 		for (int i = 0; i < Constants.pshipAmount; i++) {
 			grid.placeComputerShips(i);
 		}
@@ -81,7 +80,6 @@ public class Player {
 	}
     
     public void turnToPlay(Player opponent) {
-    	
     	boolean inputCorrect = true;
     	boolean action = true;
 		if (opponent.getHealth() == 0 || getHealth() == 0)
@@ -105,7 +103,7 @@ public class Player {
 		        		System.out.println("Your hitrate is: " + getHitrate() + "%");
 		        		System.out.println("Your damagerate is: " + getDamagerate() + "%");
 		        	}
-			        System.out.println("Choose the coordinates you want to attack (x y): ");
+			        System.out.println(getName() + " choose the coordinates you want to attack (x y): ");
 				        Point point = new Point(scan.nextInt(), scan.nextInt());
 				    	while(targetHistory.get(point) != null) {
 				            System.out.println("This position has already been tried, try again (x y); ");
@@ -119,85 +117,25 @@ public class Player {
 	        	System.out.println("Incorrect input. Only use numbers. Try again.");
 	        	System.out.println();
 	        	scan.nextLine();
-
 	        }
         }
 	}
     
-//    public boolean startTurn(Player opponent) {
-//    	boolean action = true;
-//    	opponenthealth = opponent.grid.countX();
-//    	System.out.println(getName() + " your turn.");
-//    	String f = "Your previous attacks...";
-//    	while (action == true) {
-//    		if (opponent.getHealth() == 0 || getHealth() == 0)
-//    			break;
-//    		System.out.println(f);
-//            for (int i = 0; i < f.length(); i++) {
-//            	String n = ("=");
-//            	System.out.print(n);
-//            }	protected float damagerate;
-//            opponent.grid.printAttackGrid();
-//            System.out.println();
-//        	if (hit != 0) {
-//        		System.out.println("Your hitrate is: " + getHitrate() + "%");
-//        		System.out.println("Your damagerate is: " + getDamagerate() + "%");
-//        	}
-//        	System.out.println();
-//    	
-//    	}
-//    	return action;
-//    }
-//    
-//    public void PvE() {
-//    }
-//    
-//    public Point playerAim() {
-//    	 System.out.println("Choose the coordinates you want to attack (x y): ");
-//	     Point point = new Point(scan.nextInt(), scan.nextInt());
-//	     return point;
-//    }
-//    public Point ComputerAim() {
-//	     Point point = new Point(getRandomCoordinate(), getRandomCoordinate());
-//	     return point;
-//   }
-    
     public void ComputerTurnToPlay(Player opponent) {
-    	boolean inputCorrect = true;
     	boolean action = true;
 		if (opponent.getHealth() == 0 || getHealth() == 0)
 			return;
     	opponenthealth = opponent.grid.countX();
-    	System.out.println(getName() + " your turn to attack.");
-    	String f = "Your previous attacks...";
-        while (inputCorrect) {
-			try {
-		    	while (action) {
-		    		if (opponent.getHealth() == 0 || getHealth() == 0)
-		    			break;
-		    		System.out.println(f);
-		            for (int i = 0; i < f.length(); i++) {
-		            	String n = ("=");
-		            	System.out.print(n);
-		            }
-		            opponent.grid.printAttackGrid();
-		            System.out.println();
-		        	if (hit != 0) {
-		        		System.out.println("Your hitrate is: " + getHitrate() + "%");
-		        		System.out.println("Your damagerate is: " + getDamagerate() + "%");
-		        	}
-				        Point point = new Point(getRandomCoordinate(), getRandomCoordinate());
-				    	while(targetHistory.get(point) != null) {
-				            point = new Point(getRandomCoordinate(), getRandomCoordinate());       
-				    	}
-				        action = attack(point, opponent);
-		    	}
-		        inputCorrect = false;
+	    while (action) {
+	    	if (opponent.getHealth() == 0 || getHealth() == 0)
+	    		break;
+			Point point = new Point(getRandomCoordinate(), getRandomCoordinate());
+			while(targetHistory.get(point) != null) {
+				point = new Point(getRandomCoordinate(), getRandomCoordinate());       
 			}
-	        catch (InputMismatchException e) {
-	        }
-        }
-	}
+			action = attack(point, opponent);
+	    }
+    }
     
     public boolean attack(Point point, Player opponent) {
     	shots++;
@@ -212,7 +150,6 @@ public class Player {
     	hitPercentage();
     	damagePercentage();
         targetHistory.put(point, isShipHit);
-        
         return action;
     }
     
@@ -227,7 +164,7 @@ public class Player {
     
     public float damagePercentage() {
     	if (hit != 0) {
-    		damagerate = (float) 100*(hit/opponenthealth);
+    		damagerate = 100*(hit/opponenthealth);
     		setDamagerate(damagerate);
     	}
 		return damagerate;

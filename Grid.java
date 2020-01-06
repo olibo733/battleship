@@ -55,83 +55,83 @@ public class Grid {
     
     //places ships, called x times depended on game settings
 	public void placeShips(int shipnbr) {
+		boolean inputCorrect = true;
     	int shipSize = 0;
     	int shipLives = 0;
     	Position position = null;
     	String nbr = shipNbr(shipnbr);
 		Ship ship = new Ship(shipSize, shipLives, position);
-		ships.add(ship);  
-		
-    	System.out.println("Please enter the starting coordinates for your " + nbr +" ship (x y):");
-    	Point from = new Point(scan.nextInt(), scan.nextInt());
-    	System.out.println("Please enter the ending coordinates for your " + nbr +" ship (x y):");   
-        Point to = new Point(scan.nextInt(), scan.nextInt());
-        position = new Position(from, to);  
-        while (isPointFreeForPlacement(from, to) || (isOutsideGrid(from, to)) || isShipTooBig(from, to)) {	
-        	System.out.println("Please enter the starting coordinates for your " + nbr +" ship (x y):");
-        	from = new Point(scan.nextInt(), scan.nextInt());
-        	System.out.println("Please enter the ending coordinates for your " + nbr +" ship (x y):");   
-            to = new Point(scan.nextInt(), scan.nextInt());
-            position = new Position(from, to); 
-        }
-        shipSize = (int) Utils.distanceBetweenPoints(from, to);
-        ship.setPosition(position);
-        ship.setShipSize(shipSize);
-        ship.setShipLives(shipSize);
-		drawShips(from, to, playerGrid);
-	}
-	
-	public void placeComputerShips(int shipnbr) {
-	    	int shipSize = 0;
-	    	int shipLives = 0;
-	    	Position position = null;
-			Ship ship = new Ship(shipSize, shipLives, position);
-			ships.add(ship);
-			int nummerskepp = 0; 
-			first:
-			while(nummerskepp <= 3) {
-			
-			Point from = new Point(0, 0);
-			Point to = new Point(0, 0);
-				
-			int rand1 = new Random().nextInt((9 - 0) + 1) + 0;
-			int rand2 = new Random().nextInt((9 - 0) + 1) + 0;
-			int rand3 = 0;
-			boolean Riktning = Math.random() < 0.5;
-			if(Riktning == true) {
-				rand3 = new Random().nextInt((9 - rand2) + 1) + rand2;
-				from = new Point(rand1, rand2);
-		        to = new Point(rand1, rand3);
-			}else {
-				rand3 = new Random().nextInt((9 - rand1) + 1) + rand1;
-				from = new Point(rand1, rand2);
-		        to = new Point(rand3, rand2);
-			}
-			
-	        position = new Position(from, to);
-		    	if (Krav(from, to) == false){	
-		        	break first;
+		ships.add(ship);
+	    printGrid(playerGrid);
+		while (inputCorrect) {
+			try {
+		    	System.out.println("Please enter the starting coordinates for your " + nbr +" ship (x y):");
+		    	Point from = new Point(scan.nextInt(), scan.nextInt());
+		    	System.out.println("Please enter the ending coordinates for your " + nbr +" ship (x y):");   
+		        Point to = new Point(scan.nextInt(), scan.nextInt());
+		        position = new Position(from, to);
+		        while (isPointFreeForPlacement(from, to) || (isOutsideGrid(from, to)) || isShipTooBig(from, to) || isShipWrongWay(from, to)) {	
+		        	System.out.println("Incorrect input, try again.");
+		        	System.out.println("Please enter the starting coordinates for your " + nbr +" ship (x y):");
+		        	from = new Point(scan.nextInt(), scan.nextInt());
+		        	System.out.println("Please enter the ending coordinates for your " + nbr +" ship (x y):");   
+		            to = new Point(scan.nextInt(), scan.nextInt());
+		            position = new Position(from, to);
 		        }
 		        shipSize = (int) Utils.distanceBetweenPoints(from, to);
 		        ship.setPosition(position);
 		        ship.setShipSize(shipSize);
 		        ship.setShipLives(shipSize);
-		        System.out.println(from);
-		        System.out.println(to);
 				drawShips(from, to, playerGrid);
-				nummerskepp++;
-				}
-			
+				inputCorrect = false;
+			} catch (InputMismatchException e) {
+				System.out.println("Incorrect input. Only use numbers. Try again.");
+	        	System.out.println();
+				scan.nextLine();
+			}
 		}
+	}
 	
-	public boolean Krav(Point from, Point to) {
-		if(isComputerPointFreeForPlacement(from, to) == true) {
-			return false;
+	public void placeComputerShips(int shipnbr) {
+    	int shipSize = 0;
+    	int shipLives = 0;
+    	Position position = null;
+		Ship ship = new Ship(shipSize, shipLives, position);
+		ships.add(ship);
+		Point from = new Point(0, 0);
+		Point to = new Point(0, 0);	
+		int rand1 = new Random().nextInt((9 - 0) + 1) + 0;
+		int rand2 = new Random().nextInt((9 - 0) + 1) + 0;
+		int rand3 = 0;
+		boolean direction = Math.random() < 0.5;
+		
+		if (direction) {
+			rand3 = new Random().nextInt((9 - rand2) + 1) + rand2;
+			from = new Point(rand1, rand2);
+	        to = new Point(rand1, rand3);
+		} else {
+			rand3 = new Random().nextInt((9 - rand1) + 1) + rand1;
+			from = new Point(rand1, rand2);
+	        to = new Point(rand3, rand2);
 		}
-		if(isComputerShipTooBig(from, to) == true) {
-			return false;
-		}
-		return true;
+    	while (isPointFreeForPlacement(from, to) || isShipTooBig(from, to)) {	
+    		if (direction) {
+    			rand3 = new Random().nextInt((9 - rand2) + 1) + rand2;
+    			from = new Point(rand1, rand2);
+    	        to = new Point(rand1, rand3);
+    		} else {
+    			rand3 = new Random().nextInt((9 - rand1) + 1) + rand1;
+    			from = new Point(rand1, rand2);
+    	        to = new Point(rand3, rand2);
+    		}
+        }
+        position = new Position(from, to);
+        shipSize = (int) Utils.distanceBetweenPoints(from, to);
+        ship.setPosition(position);
+        ship.setShipSize(shipSize);
+        ship.setShipLives(shipSize);
+		drawShips(from, to, playerGrid);
+		printGrid(playerGrid);
 	}
 	
 	//Prints map depending on map (playerGrid or attackGrid
@@ -157,19 +157,16 @@ public class Grid {
     	printGrid(attackGrid);
     }
     
-    //checks if ship is too big, eg 2x2, 3x3, 4x4
-    public boolean isShipTooBig(Point from, Point to) {
-    	if (Utils.distanceBetweenPoints(from, to) > 5 
-    			|| ((to.getX() == from.getX() + 1) && (to.getY() == from.getY() + 1))
-    			|| ((to.getX() == from.getX() + 2) && (to.getY() == from.getY() + 2))
-    			|| ((to.getX() == from.getX() + 3) && (to.getY() == from.getY() + 3))
-    			) {
-    		System.out.println("The ship you tried to place is too big. Try again.");
+    public boolean isShipWrongWay(Point from, Point to) {
+    	if (from.getX() > to.getX() || from.getY() > to.getY()) {
+    		System.out.println("You cannot place ships this way. Try again.");
     		return true;
     	}
     	return false;
     }
-    public boolean isComputerShipTooBig(Point from, Point to) {
+    
+    //checks if ship is too big, eg 2x2, 3x3, 4x4
+    public boolean isShipTooBig(Point from, Point to) {
     	if (Utils.distanceBetweenPoints(from, to) > 5 
     			|| ((to.getX() == from.getX() + 1) && (to.getY() == from.getY() + 1))
     			|| ((to.getX() == from.getX() + 2) && (to.getY() == from.getY() + 2))
@@ -186,7 +183,6 @@ public class Grid {
     			|| from.getY() > 9 || from.getY() < 0 
     			|| to.getX() > 9 || to.getX() < 0 
     			|| to.getY() > 9 || to.getY() < 0) {
-    		System.out.println("You can not place ships outside the grid. Try again.");
     		return true;
     	}
     	return false;
@@ -195,18 +191,8 @@ public class Grid {
     //checks if ship is attempted to be placed ontop/1 grid too close
     public boolean isPointFreeForPlacement(Point from, Point to) {
     	for (Point p: pointList) {
-    		if (p.equals(from) || p.equals(to)) {
-    			System.out.println("Cannot place ships on top of/too close to another ship! Try again.");
+    		if (p.equals(from) || p.equals(to))			
     			return true;
-    		}
-    	}
-    	return false;
-    }
-    public boolean isComputerPointFreeForPlacement(Point from, Point to) {
-    	for (Point p: pointList) {
-    		if (p.equals(from) || p.equals(to)) {
-    			return true;
-    		}
     	}
     	return false;
     }
@@ -228,48 +214,40 @@ public class Grid {
 	       }
        }
        addPoint(from, to);
-       printGrid(playerGrid);
        }
     
     
     //attacking, returns null if miss, true if hit/sunk
     public Ship targetShip(Point point, String name) {
-        boolean isHit = false;
         Ship hitShip = null;
-        for(int i = 0; i < ships.toString().length(); i++) {
-        	Ship ship = ships.get(i);
-            if(ship.getPosition() != null) {
-	            if(!Utils.isPointEqual(point, ship.getPosition()) || Utils.isPointBetween(point, ship.getPosition())) {
-	            	ship.reduceShipLives();
-	            	if (ship.isShipSunk() == true) {
+        for(Ship s : ships) {
+            if(s.getPosition() != null) {
+	            if(Utils.isPointEqual(point, s.getPosition()) || Utils.isPointBetween(point, s.getPosition())) {
+	            	s.reduceShipLives();
+	            	if (s.isShipSunk() == true) {
 	            		System.out.println(name + " targets position (" + (int) point.getX() +", " + (int) point.getY() + ") and...");
 	            		System.out.println("HITS!");
 	            		System.out.println("Good job! You sunk a ship!");
 	            		System.out.println();
-		                isHit = true;
-		                hitShip = ship;
-		                break;
+		                hitShip = s;
+		                updateShipOnBoard(point, Constants.HIT_SYM);
+		                return hitShip;
 	            	}
             		System.out.println(name + " targets position (" + (int) point.getX() +", " + (int) point.getY() + ") and...");
             		System.out.println("HITS!");
             		System.out.println();
-	                isHit = true;
-	                hitShip = ship;
-	                break;
-	            }
-	            else if (!Utils.isPointBetween(point, ship.getPosition())) {
-            		System.out.println(name + " targets position (" + (int) point.getX() +", " + (int) point.getY() + ") and...");
-            		System.out.println("misses...");
-            		System.out.println();
-	            	break;
+            		updateShipOnBoard(point, Constants.HIT_SYM);
+	                hitShip = s;
+	                return hitShip;
 	            }
             }
         }
-        String result = (isHit) ? Constants.HIT_SYM : Constants.MISS_SYM;
-        updateShipOnBoard(point, result);
-        return (isHit) ? hitShip : null;
+		System.out.println(name + " targets position (" + (int) point.getX() +", " + (int) point.getY() + ") and...");
+		System.out.println("misses...");
+		System.out.println();
+        updateShipOnBoard(point, Constants.MISS_SYM);
+        return hitShip;
     }
-    
     //updates playerGrid with 1 or 0, 1 for hit 0 for miss
     private void updateShipOnBoard(Point point, String result) {
         int x = (int) point.getX();
